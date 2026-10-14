@@ -1,207 +1,177 @@
-**Web Log Attack Hunter
+# Web Log Attack Hunter
+ 
+**Project Type:** Web Security Monitoring and Threat Detection  
+**Workflow Automation:** n8n  
+**AI Model:** Google Gemini  
+**Alerting Platform:** Telegram
 
-Project Type: Security Monitoring and Web Log Threat Detection
-Workflow Platform: n8n
-AI Analysis: Google Gemini
-Alerting Channel: Telegram
-1. Project Overview
-Web Log Attack Hunter is an automated workflow designed to inspect web
-server access logs, identify requests that may indicate common web
-application attacks, use AI-assisted analysis to assess suspicious
-activity, and send a concise security alert through Telegram.
-The project focuses on three attack categories: SQL Injection
-(SQLi), Cross-Site Scripting (XSS), and Path Traversal. It
-combines pattern-based screening with a decoding and AI review stage to
-make the results easier for a security analyst to interpret.
-The repository contains the n8n workflow export, sample web access logs,
-a workflow diagram, and an example of the Telegram alert output.
-2. Objective
-The main objective is to demonstrate how a repeatable
-security-monitoring workflow can help a security analyst:
-- Screen web access logs for suspicious request patterns.
-- Identify indicators associated with SQL injection, XSS, and path
-  traversal.
-- Decode URL-encoded request content to help reveal concealed
-  payloads.
-- Use an AI agent to review flagged requests and provide a verdict and
-  severity rating.
-- Validate the AI response before using it in an alert.
-- Deliver a compact summary of findings to Telegram.
-- Provide a fallback notification if the AI response does not meet the
-  expected format after a retry.
-3. Problem Statement
-Web applications can receive large numbers of legitimate and malicious
-requests. Manually reviewing every access-log entry can be
-time-consuming, and suspicious payloads may be URL-encoded or disguised.
-Analysts need a repeatable way to highlight potentially harmful
-requests, summarize the indicators, and receive timely notifications.
-This project demonstrates a workflow-based approach to that problem. It
-is a detection and notification aid; it does not replace a full Security
-Information and Event Management (SIEM) platform, an intrusion
-prevention system, or a human investigation.
-4. Attack Categories Covered
-SQL Injection (SQLi)
-The workflow looks for request patterns commonly associated with
-attempts to manipulate database queries, such as suspicious SQL
-expressions, union-based selection patterns, database metadata
-references, time-delay functions, and destructive database commands.
-Cross-Site Scripting (XSS)
-The workflow looks for potentially unsafe browser-oriented content in
-request parameters, including script-related markup, SVG or image event
-handlers, and JavaScript URL patterns.
-Path Traversal
-The workflow looks for path-manipulation patterns that may attempt to
-access files outside an intended directory. Examples in the supplied
-test data include traversal sequences and references to sensitive
-operating-system files.
-These detections are based on patterns and indicators. A matching
-request is evidence of suspicious activity, but it does not by itself
-prove that the target application was exploited or that data was
-accessed.
-5. Workflow Architecture
-The workflow is organized into the following stages:
-1. Manual Trigger --- starts a test or demonstration execution.
-2. Sample Logs --- supplies the web access-log entries to be
-   examined.
-3. Regex Tagger --- parses recognizable log entries, checks request
-   paths and decoded content against detection patterns, counts
-   indicators by category, and summarizes the most frequently flagged
-   source IP addresses.
-4. AI Agent --- reviews the pre-tagged findings and is instructed
-   to assess the attack types, decide whether the activity is
-   confirmed, suspicious, or benign, and assign a severity.
-5. Google Gemini Chat Model --- provides the language model used by
-   the AI agent.
-6. Payload Decoder Tool --- decodes URL-encoded content and reports
-   attack indicators, encoding depth, possible automated-tool
-   signatures, and a severity hint.
-7. Output Validation --- checks whether the AI result follows the
-   expected structure and allowed values.
-8. Decision and Retry --- sends valid results forward or allows a
-   retry when the result fails validation.
-9. Build Telegram Message --- formats the verdict, severity,
-   summary, attack-category counts, and top source IPs into a
-   notification.
-10. Telegram --- sends the alert to the configured Telegram chat.
-11. Fallback Message --- prepares a notification stating that the AI
-    result could not be verified if validation still fails after the
-    configured retry path.
-The workflow therefore combines deterministic pattern matching with
-AI-assisted interpretation and output validation before notification.
-6. How the Project Works
-When an execution is started, the workflow reads the supplied sample log
-entries. It attempts to parse each entry and inspect the request path
-for known indicators. URL decoding helps expose payloads that may not be
-obvious in their encoded form.
-Suspicious entries are grouped by detected category. The workflow also
-records source IP addresses associated with flagged requests and ranks
-them by the number of detections in the processed sample.
-The AI agent is then given a summary of the screening results and
-suspicious requests. It is instructed to use the payload-decoding tool,
-assess the likely attack category, and return a structured verdict and
-severity. The validation stage checks the response format and permitted
-values. If validation succeeds, the workflow prepares a Telegram alert.
-If validation fails, the workflow follows its retry path and can send a
-fallback alert instead.
-7. Alert Contents
-The Telegram message is designed to include:
+## 📌 Project Overview
+
+Web Log Attack Hunter is an automated security monitoring project designed to analyze web server access logs, detect suspicious activities, classify potential web application attacks, and send security alerts through Telegram.
+
+The project combines regular expression-based detection, URL payload decoding, AI-assisted analysis, output validation, and automated notification to help identify potentially malicious web requests.
+
+It focuses on three major web application attack categories:
+
+- SQL Injection (SQLi)
+- Cross-Site Scripting (XSS)
+- Path Traversal
+
+## 🎯 Objectives
+
+- Automate the initial analysis of web server access logs.
+- Identify suspicious request patterns associated with common web attacks.
+- Decode URL-encoded payloads to reveal hidden attack indicators.
+- Use AI-assisted analysis to assess suspicious requests.
+- Classify findings by verdict and severity.
+- Validate AI-generated results before generating alerts.
+- Send security notifications through Telegram.
+- Provide fallback notifications when AI output fails validation.
+
+## ❗ Problem Statement
+
+Web applications frequently receive legitimate and suspicious HTTP requests. Manually examining large volumes of access logs can be time-consuming and may delay the identification of potential security threats.
+
+Web Log Attack Hunter addresses this problem by automating the initial screening of access logs, highlighting suspicious requests, summarizing attack indicators, and delivering alerts to a configured Telegram chat.
+
+The project supports security analysis and awareness but does not independently prove that an application has been compromised.
+
+## 🛡️ Attack Categories
+
+### 1. SQL Injection (SQLi)
+
+Detects request patterns that may indicate attempts to manipulate database queries, access database information, or execute unauthorized database operations.
+
+### 2. Cross-Site Scripting (XSS)
+
+Identifies potentially malicious browser-oriented content, including suspicious script markup, event handlers, and JavaScript URL patterns.
+
+### 3. Path Traversal
+
+Identifies suspicious file paths and directory traversal patterns that may indicate attempts to access files outside an application's intended directory.
+
+**Note:** Detection results indicate suspicious patterns. Further investigation is required to determine whether an attack was successful.
+
+## ⚙️ Workflow Architecture
+
+The project uses n8n to coordinate the following stages:
+
+1. **Manual Trigger:** Starts the workflow execution.
+2. **Sample Logs:** Supplies web access-log entries for analysis.
+3. **Regex Tagger:** Parses log entries and identifies suspicious patterns associated with the supported attack categories.
+4. **AI Agent:** Reviews the detected indicators and assesses the likely attack type, verdict, and severity.
+5. **Google Gemini Chat Model:** Provides the AI model used by the agent.
+6. **Payload Decoder:** Decodes URL-encoded request content and identifies additional attack indicators.
+7. **Output Validation:** Checks whether the AI response follows the expected structure and permitted values.
+8. **Retry Mechanism:** Allows another AI attempt when the output fails validation.
+9. **Build Telegram Message:** Formats the findings into a security notification.
+10. **Telegram Notification:** Sends the generated alert to the configured chat.
+11. **Fallback Message:** Prepares an alternative notification if the AI response remains invalid after the configured retry.
+
+## 🔄 How the Project Works
+
+1. The workflow starts through the manual trigger.
+2. Sample web access logs are supplied for analysis.
+3. The log-processing stage examines recognizable entries and checks requests against predefined detection patterns.
+4. URL decoding helps identify suspicious content that may be encoded.
+5. Suspicious requests are grouped by attack category, and the source IP addresses associated with flagged requests are counted.
+6. The AI agent reviews the findings and uses the payload decoder to assist its assessment.
+7. The validation stage checks the AI response.
+8. Valid results are formatted into a Telegram security alert.
+9. If validation fails, the workflow follows its retry and fallback path.
+
+## 📩 Telegram Security Alerts
+
+The Telegram notification is designed to provide a concise summary of the analysis, including:
+
 - Project identifier and execution reference.
-- Timestamp in Indian Standard Time (IST).
-- Verdict and severity assessment.
-- A short summary of the finding.
-- Counts for SQL injection, XSS, and path traversal indicators.
-- The four source IP addresses with the highest recorded hit counts in
-  the processed sample.
-These values are generated from the workflow execution. They should be
-interpreted in the context of the specific logs supplied to that
-execution.
-8. Repository Contents
-  File                                Purpose
-  web log attack hunter.json        Exported n8n workflow definition,
-                                      including nodes, connections, and
-                                      workflow settings.
-  sample.csv                        Sample web access-log data used to
-                                      demonstrate detection. Despite the
-                                      filename, the supplied content is a
-                                      block of raw log entries rather
-                                      than a conventional comma-separated
-                                      table.
-  workflow.png                      Visual representation of the
-                                      workflow stages and their
-                                      connections.
-  send msg.jpeg                     Example screenshot showing the
-                                  Telegram security notification.
-9. Tools and Technologies
-- n8n: Visual workflow automation and orchestration.
-- JavaScript within n8n Code nodes: Log parsing, pattern
-  screening, payload decoding, result preparation, and validation.
-- Google Gemini: AI-assisted review of suspicious log findings.
-- Telegram Bot integration: Delivery of security notifications.
-- Regular expressions: Initial identification of known suspicious
-  request patterns.
-10. Expected Benefits
-- Reduces the need to manually scan every line in a small test log.
-- Applies the same initial detection patterns consistently.
-- Makes some encoded payload indicators easier to inspect.
-- Produces a compact alert for quicker review.
-- Separates initial pattern detection from AI-assisted assessment.
-- Checks AI output before using it in the normal alert path.
-- Demonstrates a practical integration of log analysis, AI,
-  validation, and messaging.
-11. Scope and Limitations
-- The supplied workflow uses sample log data for demonstration; the
-  repository does not, by itself, establish that a live production log
-  source is connected.
-- Pattern matching can produce false positives and can miss attacks
-  that do not match the configured patterns.
-- AI-generated verdicts and severity ratings are assessments, not
-  proof of successful exploitation.
-- The source IP ranking reflects flagged requests in the processed
-  input, not a verified attribution of an attacker.
-- The workflow does not itself block requests, patch an application,
-  investigate a host, or confirm data exfiltration.
-- The supplied workflow export is marked inactive. It must be
-  configured and activated in the intended n8n environment before it
-  can run as an operational workflow.
-- The Telegram node contains a placeholder chat identifier. A valid
-  destination and appropriate Telegram credentials must be configured
-  before notifications can be delivered.
-- The sample data and screenshot illustrate a test run. Results can
-  differ when the input logs, configuration, model response, or
-  execution settings change.
-12. Setup Overview
-To prepare the workflow for a demonstration or test environment:
-1. Import the workflow definition into n8n.
-2. Review the workflow nodes and connections.
-3. Configure the Google Gemini credentials required by the AI model
-   node.
-4. Configure Telegram bot credentials and replace the placeholder chat
-   identifier with the intended destination.
-5. Review the supplied sample logs and use authorized test data.
-6. Execute the workflow manually and inspect the node outputs.
-7. Confirm that the Telegram destination receives the expected
-   notification.
-8. Validate the detections against known benign and suspicious test
-   cases before relying on the workflow for monitoring.
-9. Activate the workflow only after the required configuration and
-   testing are complete.
-Exact configuration steps may vary with the installed n8n version and
-the credentials available in the environment.
-13. Security and Responsible Use
-Use this project only with web logs that you own or are authorized to
-analyze. Treat IP addresses, request paths, user identifiers, and other
-log details as potentially sensitive information. Avoid sending
-confidential production data to external AI services unless your
-organization's data-handling policies permit it.
-The project is intended for defensive monitoring, educational
-demonstrations, and authorized security testing.
-14. Conclusion
-Web Log Attack Hunter demonstrates an end-to-end security alerting
-workflow: sample log intake, pattern-based screening, payload decoding,
-AI-assisted assessment, response validation, and Telegram notification.
-Its purpose is to help highlight suspicious web requests and summarize
-them in a readable format for further investigation.
-The workflow should be treated as a prototype or demonstration until its
-credentials, alert destination, data source, detection quality, and
-operational behavior have been configured and tested for the intended
-environment.**
+- Execution timestamp in Indian Standard Time (IST).
+- Security verdict and severity.
+- Summary of the detected activity.
+- SQL Injection detection count.
+- XSS detection count.
+- Path Traversal detection count.
+- Top four source IP addresses by recorded suspicious-request count.
+
+This notification format helps make the results easier to review without manually examining every processed log entry.
+
+## 🧰 Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| n8n | Workflow automation and orchestration |
+| JavaScript | Log processing, detection, decoding, and validation |
+| Regular Expressions | Initial identification of suspicious request patterns |
+| Google Gemini | AI-assisted security analysis |
+| Telegram Bot | Automated security notifications |
+| JSON | Workflow configuration and structured AI output |
+
+## 📁 Repository Structure
+
+| File | Description |
+|---|---|
+| `web log attack hunter.json` | Exported n8n workflow configuration |
+| `sample.csv` | Sample web access-log data used for testing |
+| `workflow.png` | Visual representation of the workflow architecture |
+| `send msg.jpeg` | Screenshot of the Telegram security alert |
+| `README.md` | Project documentation |
+
+## ✅ Key Features
+
+- Automated web access-log screening.
+- Detection of SQL Injection, XSS, and Path Traversal indicators.
+- URL-encoded payload inspection.
+- AI-assisted threat assessment.
+- Severity and verdict classification.
+- Validation of AI-generated output.
+- Retry and fallback handling.
+- Automated Telegram alert generation.
+- Summary of frequently flagged source IP addresses.
+
+## 📊 Expected Benefits
+
+- Reduces manual effort during initial log analysis.
+- Helps identify suspicious web requests more consistently.
+- Improves visibility into common web attack patterns.
+- Makes encoded payloads easier to inspect.
+- Provides readable summaries through Telegram.
+- Demonstrates the integration of security monitoring, AI, and workflow automation.
+
+## ⚠️ Scope and Limitations
+
+- The supplied workflow uses sample logs; a live production log source is not established by the repository files alone.
+- Pattern-based detection may produce false positives or miss attacks that do not match the configured rules.
+- AI-generated verdicts and severity ratings require verification.
+- Source IP counts represent activity in the analyzed input and do not establish the identity of an attacker.
+- The workflow detects and reports suspicious activity; it does not automatically block attacks or remediate vulnerabilities.
+- The exported workflow is marked inactive and requires configuration before operational use.
+- Telegram credentials and a valid destination chat ID must be configured before notifications can be delivered.
+- The workflow should be tested with benign and suspicious inputs before being used for security monitoring.
+
+## 🚀 Setup Overview
+
+1. Import the workflow JSON file into n8n.
+2. Review the workflow nodes and their connections.
+3. Configure the required Google Gemini credentials.
+4. Configure Telegram bot credentials and the destination chat ID.
+5. Review the sample log data.
+6. Execute the workflow manually.
+7. Inspect the detection, AI analysis, and validation results.
+8. Confirm that the Telegram notification is delivered correctly.
+9. Test the workflow with authorized test data before activating it.
+
+## 🔐 Security and Responsible Use
+
+Use this project only with logs from systems you own or are authorized to analyze.
+
+Treat access logs, IP addresses, request paths, and other potentially sensitive information carefully. Ensure that sending log data to an external AI service complies with applicable security and privacy requirements.
+
+This project is intended for educational demonstrations, defensive security monitoring, and authorized security testing.
+
+## 📝 Conclusion
+
+Web Log Attack Hunter demonstrates an automated approach to identifying suspicious web access-log entries and notifying analysts of potential security threats.
+
+By combining pattern-based detection, payload decoding, AI-assisted analysis, output validation, and Telegram integration, the project provides a practical example of security workflow automation.
+
+It serves as a foundation for further improvements in log monitoring, detection accuracy, alert management, and security operations.
